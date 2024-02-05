@@ -1,95 +1,191 @@
-﻿port: 7890
-socks-port: 7891
+# HTTP(S) and SOCKS4(A)/SOCKS5 server on the same port
+mixed-port: 7890
+
+# Set to true to allow connections to the local-end server from
+# other LAN IP addresses
 allow-lan: true
-mode: Rule
+
+# This is only applicable when `allow-lan` is `true`
+# '*': bind all IP addresses
+# 192.168.122.11: bind a single IPv4 address
+# "[aaaa::a8aa:ff:fe09:57d8]": bind a single IPv6 address
+bind-address: '*'
+
+# Clash router working mode
+# rule: rule-based packet routing
+# global: all packets will be forwarded to a single endpoint
+# direct: directly forward the packets to the Internet
+mode: rule
+
+# Clash by default prints logs to STDOUT
+# info / warning / error / debug / silent
 log-level: info
-external-controller: :9090
+
+# When set to false, resolver won't translate hostnames to IPv6 addresses
+ipv6: true
+
+# RESTful web API listening address
+external-controller: 127.0.0.1:9090
+secret:
+
+# Static hosts for DNS server and connection establishment (like /etc/hosts)
+#
+# Wildcard hostnames are supported (e.g. *.clash.dev, *.foo.*.example.com)
+# Non-wildcard domain names have a higher priority than wildcard domain names
+# e.g. foo.example.com > *.example.com > .example.com
+# P.S. +.foo.com equals to .foo.com and foo.com
+hosts: null
+# '*.clash.dev': 127.0.0.1
+# '.dev': 127.0.0.1
+# 'alpha.clash.dev': '::1'
+profile:
+  # Store the `select` results in $HOME/.config/clash/.cache
+  # set false If you don't want this behavior
+  # when two different configurations have groups with the same name, the selected values are shared
+  store-selected: true
+
+  # persistence fakeip
+  store-fake-ip: true
+
+# Outbound interface name
+#interface-name: {{IfName}}
+
+#ebpf:
+#  redirect-to-tun:
+#    - {{IfName}}
+
+tun:
+  enable: true
+  stack: system # or gvisor
+  dns-hijack:
+    - any:53
+  auto-route: true
+  auto-redir: true
+  auto-detect-interface: true
+
+iptables:
+  enable: false
+
+#routing-mark: 666
+
+# DNS server settings
+# This section is optional. When not present, the DNS server will be disabled.
+dns:
+  enable: true
+  listen: 127.0.0.1:5335
+  enhanced-mode: fake-ip
+  fake-ip-range: 198.18.0.1/16
+  # use-hosts: true # lookup hosts and return IP record
+  # Hostnames in this list will not be resolved with fake IPs
+  # i.e. questions to these domain names will always be answered with their
+  # real IP addresses
+  fake-ip-filter:
+    - '*.lan'
+    - '*.local'
+  # These nameservers are used to resolve the DNS nameserver hostnames below.
+  # Specify IP addresses only
+  default-nameserver:
+    - 223.5.5.5
+    - 119.29.29.29
+  # Supports UDP, TCP, DoT, DoH. You can specify the port to connect to.
+  # All DNS questions are sent directly to the nameserver, without proxies
+  # involved. Clash answers the DNS question with the first result gathered.
+  nameserver:
+    {{range $index, $server := DefaultDNS}}- {{$server}}
+    {{end}}
+
+# GEOIPๅบ“
+#geox-url:
+#  geoip: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geoip.dat"
+#  geosite: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/geosite.dat"
+#  mmdb: "https://github.com/MetaCubeX/meta-rules-dat/releases/download/latest/country.mmdb"
+
 proxies:
-  - {name: 101tls, server: 197.215.140.234, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 2, server: 171.234.242.197, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 3, server: 5.188.126.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 4, server: 202.78.162.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 5, server: 151.248.104.91, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 6, server: 186.16.19.94, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 7, server: 92.223.124.50, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 8, server: 134.0.219.37, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 9, server: 92.223.107.44, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 10, server: 45.82.103.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 11, server: 190.95.248.34, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 12, server: 195.216.237.222, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 13, server: 180.149.90.66, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 14, server: 194.44.246.206, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 15, server: 5.1.107.249, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 16, server: 37.236.95.2, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 17, server: 80.93.215.8, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 18, server: 134.0.219.37, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 19, server: 197.215.140.234, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 20, server: 5.188.126.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 21, server: 202.78.162.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 22, server: 151.248.104.91, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 23, server: 92.223.124.50, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 24, server: 92.223.107.44, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 25, server: 45.82.103.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 26, server: 190.95.248.34, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 27, server: 195.216.237.222, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 28, server: 180.149.90.66, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 29, server: 194.44.246.206, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 30, server: 5.1.107.249, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 101tls 31, server: 80.93.215.8, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666, server: 193.169.251.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 2, server: 120.28.10.46, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 3, server: 92.223.78.23, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 4, server: 181.174.80.182, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 5, server: 109.68.233.242, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 6, server: 5.188.126.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 7, server: 5.188.126.7, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 8, server: 93.123.17.141, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 9, server: 5.188.94.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 10, server: 92.223.12.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 11, server: 202.129.236.162, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 12, server: 197.225.145.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 13, server: 151.248.104.69, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 14, server: 134.0.219.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 15, server: 195.216.237.201, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 16, server: 213.156.151.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 17, server: 197.188.22.102, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 18, server: 78.111.101.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 19, server: 80.240.124.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 20, server: 92.38.168.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 21, server: 37.110.209.228, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 22, server: 109.230.114.2, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 23, server: 92.46.108.106, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 24, server: 87.120.164.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 25, server: 185.48.136.150, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 26, server: 92.223.12.30, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 27, server: 92.223.74.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 28, server: 5.189.207.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 29, server: 102.67.99.50, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 30, server: 93.123.17.188, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 31, server: 185.105.1.10, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 32, server: 193.36.180.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 33, server: 5.188.126.14, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 34, server: 5.189.207.14, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 35, server: 45.65.8.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 36, server: 95.85.92.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 37, server: 217.76.64.195, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 38, server: 179.51.50.82, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 39, server: 102.130.69.141, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 40, server: 80.240.113.11, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 41, server: 92.38.168.7, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 42, server: 176.222.187.178, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 43, server: 45.65.8.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 44, server: 5.189.207.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 45, server: 193.169.251.9, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 46, server: 95.85.92.8, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 47, server: 80.240.113.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 48, server: 186.2.150.34, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 49, server: 45.80.213.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 50, server: 92.223.118.17, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 51, server: 92.223.78.22, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 52, server: 185.188.144.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 53, server: 45.80.213.7, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
-  - {name: 66666666 54, server: 92.223.107.47, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto, tls: true, skip-cert-verify: true, network: ws, ws-path: /affe9c35, ws-headers: {Host: wacmy.com}, udp: true}
+  - {name: 101tls, server: 197.215.140.234, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 2, server: 171.234.242.197, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 3, server: 5.188.126.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 4, server: 202.78.162.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 5, server: 151.248.104.91, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 6, server: 186.16.19.94, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 7, server: 92.223.124.50, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 8, server: 134.0.219.37, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 9, server: 92.223.107.44, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 10, server: 45.82.103.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 11, server: 190.95.248.34, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 12, server: 195.216.237.222, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 13, server: 180.149.90.66, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 14, server: 194.44.246.206, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 15, server: 5.1.107.249, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 16, server: 37.236.95.2, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 17, server: 80.93.215.8, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 18, server: 134.0.219.37, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 19, server: 197.215.140.234, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 20, server: 5.188.126.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 21, server: 202.78.162.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 22, server: 151.248.104.91, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 23, server: 92.223.124.50, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 24, server: 92.223.107.44, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 25, server: 45.82.103.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 26, server: 190.95.248.34, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 27, server: 195.216.237.222, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 28, server: 180.149.90.66, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 29, server: 194.44.246.206, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 30, server: 5.1.107.249, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 101tls 31, server: 80.93.215.8, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666, server: 193.169.251.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 2, server: 120.28.10.46, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 3, server: 92.223.78.23, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 4, server: 181.174.80.182, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 5, server: 109.68.233.242, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 6, server: 5.188.126.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 7, server: 5.188.126.7, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 8, server: 93.123.17.141, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 9, server: 5.188.94.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 10, server: 92.223.12.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 11, server: 202.129.236.162, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 12, server: 197.225.145.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 13, server: 151.248.104.69, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 14, server: 134.0.219.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 15, server: 195.216.237.201, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 16, server: 213.156.151.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 17, server: 197.188.22.102, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 18, server: 78.111.101.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 19, server: 80.240.124.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 20, server: 92.38.168.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 21, server: 37.110.209.228, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 22, server: 109.230.114.2, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 23, server: 92.46.108.106, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 24, server: 87.120.164.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 25, server: 185.48.136.150, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 26, server: 92.223.12.30, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 27, server: 92.223.74.26, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 28, server: 5.189.207.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 29, server: 102.67.99.50, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 30, server: 93.123.17.188, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 31, server: 185.105.1.10, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 32, server: 193.36.180.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 33, server: 5.188.126.14, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 34, server: 5.189.207.14, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 35, server: 45.65.8.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 36, server: 95.85.92.6, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 37, server: 217.76.64.195, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 38, server: 179.51.50.82, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 39, server: 102.130.69.141, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 40, server: 80.240.113.11, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 41, server: 92.38.168.7, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 42, server: 176.222.187.178, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 43, server: 45.65.8.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 44, server: 5.189.207.4, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 45, server: 193.169.251.9, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 46, server: 95.85.92.8, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 47, server: 80.240.113.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 48, server: 186.2.150.34, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 49, server: 45.80.213.62, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 50, server: 92.223.118.17, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 51, server: 92.223.78.22, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 52, server: 185.188.144.5, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 53, server: 45.80.213.7, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
+  - {name: 66666666 54, server: 92.223.107.47, port: 443, type: vmess, uuid: affe9c35-211b-486f-c608-0a6b2e3f4384, alterId: 0, cipher: auto,  tls: true, servername: speedtest.gcore.com, network: ws, ws-opts: {path: /affe9c35, headers: {Host: wacmy.com}}
 proxy-groups:
   - name: 🔰 节点选择
     type: select
